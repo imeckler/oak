@@ -181,7 +181,6 @@ module Form = struct
     let line ctx style path closed =
       if Array.length style.Line_style.dashing = 0 then trace ctx path closed
       else custom_line_help ctx style path;
-(*       ctx##scale(1., -1.); *)
       ctx##stroke
     ;;
 
@@ -221,15 +220,12 @@ module Form = struct
         | Solid color -> ctx##.fillStyle          := Js.string (Color.to_css_string color)
         | Texture img -> ctx##.fillStyle_pattern  := texture ctx img
         | Grad g      -> ctx##.fillStyle_gradient := gradient ctx g);
-(*       ctx##scale(1., -1.); *)
       ctx##fill
     ;;
 
     let draw_image ctx (w, h, (src_x, src_y), img) =
       let src_x = float_of_int src_x in let src_y = float_of_int src_y in
       let w = float_of_int w in let h = float_of_int h in
-(*       let dest_x = -.w /. 2. in let dest_y = -.h /. 2. in *)
-(*       ctx##scale(1., -1.); *)
       ctx##drawImage_full img src_x src_y w h 0. 0. w h
     ;;
 
