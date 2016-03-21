@@ -1,0 +1,17 @@
+setup.ml
+setup.exe
+_tags
+**/myocamlbuild.ml
+**/_build
+**/configure
+**/Makefile
+*.byte
+*.map
+setup.data
+setup.log
+**.DS_Store
+**/*.native
+.merlin
+**/*.mldylib
+**/*.mllib
+src/META
