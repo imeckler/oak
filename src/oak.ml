@@ -36,6 +36,76 @@ module Line_style = struct
   let dotted color = { default with color; dashing = [|3; 3|] }
 end
 
+module Text_style = struct
+  module Alignment = struct
+    type t =
+      | Start
+      | End
+      | Left
+      | Right
+      | Center
+
+    let to_string = function
+      | Start -> "start"
+      | End -> "end"
+      | Left -> "left"
+      | Right -> "right"
+      | Center -> "center"
+  end
+
+  module Baseline = struct
+    type t =
+      | Top
+      | Hanging
+      | Middle
+      | Alphabetic
+      | Ideographic
+      | Bottom
+
+    let to_string = function
+      | Top -> "top"
+      | Hanging -> "hanging"
+      | Middle -> "middle"
+      | Alphabetic -> "alphabetic"
+      | Ideographic -> "ideographic"
+      | Bottom -> "bottom"
+  end
+
+  module Direction = struct
+    type t =
+      | Left_to_right
+      | Right_to_left
+      | Inherit
+
+    let to_string = function
+      | Left_to_right -> "ltr"
+      | Right_to_left -> "rtl"
+      | Inherit -> "inherit"
+  end
+
+  module Coloring = struct
+    type t =
+      | Fill of Color.t
+      | Stroke of Color.t
+  end
+
+  type t =
+    { font      : string
+    ; alignment : Alignment.t
+    ; baseline  : Baseline.t
+    ; direction : Direction.t
+    ; coloring  : Coloring.t
+    }
+
+  let default =
+    { font = "14px sans-serif"
+    ; alignment = Start
+    ; baseline = Alphabetic
+    ; direction = Inherit
+    ; coloring = Fill Color.black
+    }
+end
+
 module Fill_style = struct
   type t =
     | Solid   of Color.t
@@ -83,6 +153,7 @@ module Form = struct
 
   type basic_form =
     | Raw of (Dom_html.canvasRenderingContext2D Js.t -> unit)
+    | Text of Text_style.t * string
     | Path of Line_style.t * Path.t
     | Shape of (Line_style.t, Fill_style.t) Either.t * Shape.t
     | Image of int * int * (int * int) * Image.t (* TODO: Let's see how this works *)
@@ -122,6 +193,8 @@ module Form = struct
   let outlined style shape = basic (Shape (InL style, shape))
 
   let traced style path = basic (Path (style, path))
+
+  let text style text = basic (Text (style, text))
 
   let sprite w h pos url = basic (Image (w, h, pos, url))
 
@@ -223,6 +296,27 @@ module Form = struct
       ctx##fill
     ;;
 
+    let draw_text (ctx : canvas_ctx)
+        { Text_style.font; alignment; baseline; direction; coloring  }
+        (text : string)
+      =
+      ctx##save;
+      ctx##scale 1. (-1.);
+        ctx##.font := Js.string font;
+        ctx##.textAlign := Js.string (Text_style.Alignment.to_string alignment);
+        ctx##.textBaseline := Js.string (Text_style.Baseline.to_string baseline);
+        (Js.Unsafe.coerce ctx)##.direction := Js.string (Text_style.Direction.to_string direction);
+        begin match coloring with
+        | Fill color ->
+          ctx##.fillStyle := Js.string (Color.to_css_string color);
+          ctx##fillText (Js.string text) 0. 0.;
+        | Stroke color ->
+          ctx##.strokeStyle := Js.string (Color.to_css_string color);
+          ctx##strokeText (Js.string text) 0. 0.;
+        end;
+      ctx##restore
+    ;;
+
     let draw_image ctx (w, h, (src_x, src_y), img) =
       let src_x = float_of_int src_x in let src_y = float_of_int src_y in
       let w = float_of_int w in let h = float_of_int h in
@@ -254,6 +348,7 @@ module Form = struct
         Form.(match form with
           | Raw f -> f ctx
           | Path (style, path)       -> draw_line ctx style path false
+          | Text (style, text)       -> draw_text ctx style text
           | Image (w, h, pos, img)   -> draw_image ctx (w, h, pos, img)
           | Shape (InR style, shape) -> draw_shape ctx style shape
           | Shape (InL style, shape) -> draw_line ctx style shape true

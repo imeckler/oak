@@ -34,6 +34,50 @@ module Fill_style : sig
     | Grad of Color.Gradient.t
 end
 
+module Text_style : sig
+  module Alignment : sig
+    type t =
+      | Start
+      | End
+      | Left
+      | Right
+      | Center
+  end
+
+  module Baseline : sig
+    type t =
+      | Top
+      | Hanging
+      | Middle
+      | Alphabetic
+      | Ideographic
+      | Bottom
+  end
+
+  module Direction : sig
+    type t =
+      | Left_to_right
+      | Right_to_left
+      | Inherit
+  end
+
+  module Coloring : sig
+    type t =
+      | Fill of Color.t
+      | Stroke of Color.t
+  end
+
+  type t =
+    { font      : string
+    ; alignment : Alignment.t
+    ; baseline  : Baseline.t
+    ; direction : Direction.t
+    ; coloring  : Coloring.t
+    }
+
+  val default : t
+end
+
 module Path : sig
   type t
 
@@ -70,6 +114,8 @@ module Form : sig
   val outlined : Line_style.t -> Shape.t -> t
 
   val traced : Line_style.t -> Path.t -> t
+
+  val text : Text_style.t -> string -> t
 
   val sprite : int -> int -> (int * int) -> Image.t -> t
 
