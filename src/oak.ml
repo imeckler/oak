@@ -1,3 +1,4 @@
+open Js_of_ocaml
 module Color = Color
 module Vector = Vector
 module Affine = Affine

@@ -1,3 +1,4 @@
+open Js_of_ocaml
 module Color : module type of Color
 module Vector : module type of Vector
 module Affine : module type of Affine
