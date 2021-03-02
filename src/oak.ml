@@ -169,7 +169,7 @@ module Form = struct
     ; form  : basic_form
     }
 
-  let round x : int =
+  let _round x : int =
     Js.Unsafe.(meth_call (variable "Math") "round" [|inject (Js.number_of_float x)|])
 
   let basic form =
@@ -234,15 +234,15 @@ module Form = struct
       if Array.length path > 1
       then
         let pattern    = style.Line_style.dashing in
-        let p_len      = Array.length pattern in
+        let _p_len      = Array.length pattern in
         let (x0, y0)   = path.(Array.length path - 1) in
-        let rec loop i (x0, y0) pindex draw =
+        let _loop i (x0, y0) _pindex _draw =
           if i < 0
           then ()
           else
             let (x1, y1) = path.(i) in
-            let dx = x1 -. x0 in let dy = y1 -. y0 in
-            let rec loop2 segment_length remaining (dx, dy) draw =
+            let _dx = x1 -. x0 in let _dy = y1 -. y0 in
+            let _loop2 _segment_length _remaining (_dx, _dy) _draw =
               failwith ""
             in
             failwith ""
@@ -328,7 +328,7 @@ module Form = struct
       ctx##transform a b c d x y
     ;;
 
-    let make_canvas w h =
+    let _make_canvas w h =
       let canvas = Dom_html.(createCanvas document) in
       canvas##.style##.width    := Js.string (Printf.sprintf "%dpx" w);
       canvas##.style##.height   := Js.string (Printf.sprintf "%dpx" h);
@@ -346,7 +346,7 @@ module Form = struct
         if scale <> 1. then ctx##scale scale scale;
         if alpha <> 1. then ctx##.globalAlpha := Js.to_float (ctx##.globalAlpha) *. alpha;
         ctx##beginPath;
-        Form.(match form with
+        (match form with
           | Raw f -> f ctx
           | Path (style, path)       -> draw_line ctx style path false
           | Text (style, text)       -> draw_text ctx style text
