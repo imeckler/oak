@@ -5,8 +5,7 @@
  (js_of_ocaml)
  (libraries
  js_of_ocaml
-   core_kernel
-   async_kernel )
+   core_kernel )
  (preprocess (pps
                js_of_ocaml-ppx
                ppx_jane
